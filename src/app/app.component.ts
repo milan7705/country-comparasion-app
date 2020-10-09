@@ -1,4 +1,8 @@
+
 import { Component } from '@angular/core';
+import { map } from 'rxjs/internal/operators/map';
+import { CountryService } from './country.service';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +11,13 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'country-compare-app';
+
+
+  constructor( private _compare: CountryService) { }
+
+
+  ngOnInit() {
+
+  }
+
 }
