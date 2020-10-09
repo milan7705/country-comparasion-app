@@ -151,17 +151,11 @@ export class HomePageComponent implements OnInit {
           map((value: string | null) => value ? this._filter(value) : this.countriesNames.slice())
         );
       });
-
-  }
-  myFunction(country) {
-    this.barChartData[0].label = country.name;
-    this.ngOnInit();
   }
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
     return this.countriesNames.filter(option => option.toLowerCase().indexOf(filterValue) === 0);
   }
-
   maxCompare() {
     this.selectedCountryObjects = [];
     this.barChartData = [];
@@ -193,8 +187,8 @@ export class HomePageComponent implements OnInit {
     let minPopNumber = Math.min(...popArr);
     this.maxPopulation = maxPopNumber.toLocaleString('en-US');
     this.minPopulation = minPopNumber.toLocaleString('en-US');
-    let baki = maxPopNumber - minPopNumber;
-    this.diffPopulation = baki.toLocaleString('en-US');
+    let diff = maxPopNumber - minPopNumber;
+    this.diffPopulation = diff.toLocaleString('en-US');
     this.selectedCountryObjects.forEach(country => {
       if (country.population == maxPopNumber) {
         this.maxPopulationCountry = country.name;

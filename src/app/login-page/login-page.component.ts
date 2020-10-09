@@ -17,18 +17,10 @@ export class LoginPageComponent implements OnInit {
   isLogin = true;
   isLoading = false;
   error: string = null;
-  errorMessage = 'BAKI!'
   constructor(private authService : AuthService, private router: Router, private _snackBar: MatSnackBar) { }
-
-
-  openSnackBar(message: string) {
- 
-  }
 
   ngOnInit(): void {
   }
-
-
     onSubmit(form: NgForm) {
       if(!form.valid) {
         return;
@@ -36,14 +28,11 @@ export class LoginPageComponent implements OnInit {
       const username = form.value.username;
       const password = form.value.password ;
       let authObs: Observable<AuthResponseData>;
-  
-  
       this.isLoading = true;
       if(this.isLogin) {
         authObs = this.authService.login(username, password)
       } else {
       }
-  
       authObs.subscribe(responseData => {
         this.isLoading = false;
         this.router.navigate(['./home'])
@@ -53,8 +42,6 @@ export class LoginPageComponent implements OnInit {
     }
         this.isLoading = false;
       })
-  
-  
       form.reset();
     }
 }
