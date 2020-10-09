@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { NULL_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Observable } from 'rxjs';
 import { formatCurrency } from '@angular/common';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
@@ -16,8 +17,13 @@ export class LoginPageComponent implements OnInit {
   isLogin = true;
   isLoading = false;
   error: string = null;
+  errorMessage = 'BAKI!'
+  constructor(private authService : AuthService, private router: Router, private _snackBar: MatSnackBar) { }
 
-  constructor(private authService : AuthService, private router: Router) { }
+
+  openSnackBar(message: string) {
+ 
+  }
 
   ngOnInit(): void {
   }
@@ -42,7 +48,9 @@ export class LoginPageComponent implements OnInit {
         this.isLoading = false;
         this.router.navigate(['./home'])
       }, errorMessage => {
-        this.error = errorMessage;
+           this._snackBar.open(errorMessage), {
+      duration: 2000,
+    }
         this.isLoading = false;
       })
   

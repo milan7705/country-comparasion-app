@@ -1,12 +1,16 @@
 import { Component, OnInit, ElementRef, ViewChild, Input } from '@angular/core';
 import { CountryService } from '../country.service';
 import { FormControl } from '@angular/forms';
-import { Observable } from 'rxjs';
-import {MatAutocompleteSelectedEvent, MatAutocomplete} from '@angular/material/autocomplete';
-import {MatChipInputEvent} from '@angular/material/chips';
-import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { MatAutocompleteSelectedEvent, MatAutocomplete } from '@angular/material/autocomplete';
+import { MatChipInputEvent } from '@angular/material/chips';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 
 import { map, startWith } from 'rxjs/operators';
+import { AuthService } from '../auth.service';
+import { User } from '../user.model';
+import { Router } from '@angular/router';
+import { ListKeyManager } from '@angular/cdk/a11y';
 
 
 
@@ -18,14 +22,29 @@ import { map, startWith } from 'rxjs/operators';
 })
 export class HomePageComponent implements OnInit {
 
+  user = new BehaviorSubject<User>(null);
+  private tokenExpirationTimer: any;
+
+
+  logout() {
+    this.user.next(null);
+    this.router.navigate(['/home']);
+    localStorage.removeItem('userData');
+    if (this.tokenExpirationTimer) {
+      clearTimeout(this.tokenExpirationTimer);
+    }
+    this.tokenExpirationTimer = null;
+ }
+  
+
   public barChartOptions: any = {
     scales: {
       yAxes: [{
-          ticks: {
-              beginAtZero: true
-          }
+        ticks: {
+          beginAtZero: true
+        }
       }]
-  },
+    },
     scaleShowVerticalLines: true,
     responsive: true
   };
@@ -53,9 +72,9 @@ export class HomePageComponent implements OnInit {
     },
   ];
   public barChartData: any[] = [
-   {
-    label: 'please select a country'
-   }
+    {
+      label: 'please select a country'
+    }
   ];
 
   countries: any;
@@ -69,47 +88,42 @@ export class HomePageComponent implements OnInit {
   selectable = false;
   removable = true;
   separatorKeysCodes: number[] = [ENTER, COMMA];
-  maxPopulation: number = null;
-  diffPopulation: number = null;
-  minPopulation: number = null;
+  maxPopulation: any;
+  diffPopulation: any;
+  minPopulation: any;
 
   maxPopulationCountry: string = '';
   minPopulationCountry: string = '';
 
   @ViewChild('countryInput') countryInput: ElementRef<HTMLInputElement>;
-  @ViewChild('auto') matAutocomplete: MatAutocomplete;  
+  @ViewChild('auto') matAutocomplete: MatAutocomplete;
   @Input('aria-orientation') ariaOrientation: 'vertical';
 
-  constructor(private _compare: CountryService) { 
+  constructor(private _compare: CountryService, private authService: AuthService, private router: Router) {
 
   }
 
   add(event: MatChipInputEvent): void {
     const input = event.input;
     const value = event.value;
-    // console.log(this.countries, value, input)
 
     // Add our country
-    if(this.selectedCountries.indexOf(value) !== -1){
-    if ((value || '').trim()) {
-      this.selectedCountries.push(value.trim());
-      this.countries.filter( country => {
-        country.name !== value;
-      })
+    if (this.selectedCountries.indexOf(value) !== -1) {
+      if ((value || '').trim()) {
+        this.selectedCountries.push(value.trim());
+        this.countries.filter(country => {
+          country.name !== value;
+        })
+      }
+      // Reset the input value
+      if (input) {
+        input.value = '';
+      }
     }
-
-    // Reset the input value
-    if (input) {
-      input.value = '';
-    }
-  }
-
     this.myControl.setValue(null);
   }
-
   remove(value: string): void {
     const index = this.selectedCountries.indexOf(value);
-
     if (index >= 0) {
       this.selectedCountries.splice(index, 1);
     }
@@ -117,11 +131,9 @@ export class HomePageComponent implements OnInit {
 
   selected(event: MatAutocompleteSelectedEvent): void {
     let index = this.selectedCountries.indexOf(event.option.viewValue);
-    if(index === -1){
+    if (index === -1) {
       this.selectedCountries.push(event.option.viewValue);
     }
-
-  console.log(this.selectedCountries)
     this.countryInput.nativeElement.value = '';
     this.myControl.setValue(null);
   }
@@ -131,15 +143,15 @@ export class HomePageComponent implements OnInit {
     this._compare.comparassionCountry()
       .subscribe((data) => {
         that.countries = data;
-        that.countriesNames = that.countries.map( singleCountry => {
+        that.countriesNames = that.countries.map(singleCountry => {
           return singleCountry.name;
         })
         this.filteredOptions = this.myControl.valueChanges.pipe(
           startWith(''),
           map((value: string | null) => value ? this._filter(value) : this.countriesNames.slice())
-        );     
+        );
       });
-      
+
   }
   myFunction(country) {
     this.barChartData[0].label = country.name;
@@ -150,29 +162,25 @@ export class HomePageComponent implements OnInit {
     return this.countriesNames.filter(option => option.toLowerCase().indexOf(filterValue) === 0);
   }
 
-
-maxCompare() {
-  this.selectedCountryObjects = [];
-  // this.barChartData = [{data: [1], label: "yte"}];
-  this.barChartData = [];
-  if (this.selectedCountries.length > 4 || this.selectedCountries.length < 2) {
-    alert('The number of selected countries must be between two and four');
-    return;
-  }
+  maxCompare() {
+    this.selectedCountryObjects = [];
+    this.barChartData = [];
+    if (this.selectedCountries.length > 4 || this.selectedCountries.length < 2) {
+      alert('The number of selected countries must be between two and four');
+      return;
+    }
     this.selectedCountries.forEach(name => {
       this.countries.forEach(countryObject => {
-        if(name == countryObject.name) {
+        if (name == countryObject.name) {
           this.selectedCountryObjects.push(countryObject);
           let tempArr: any[] = [];
-          var obj:object = {};
+          var obj: object = {};
           tempArr.push(countryObject.population);
           obj["data"] = tempArr;
           obj["label"] = countryObject.name;
           this.barChartData.push(obj);
         }
       })
-      console.log('barChartData');
-      console.log(this.barChartData);
     });
     var populationArray: any[] = [];
     this.selectedCountryObjects.forEach(singlePop => {
@@ -181,16 +189,22 @@ maxCompare() {
     this.populationComparation(populationArray)
   }
   populationComparation(popArr) {
-    this.maxPopulation = Math.max(...popArr);
-    this.minPopulation = Math.min(...popArr);
-    this.diffPopulation = this.maxPopulation - this.minPopulation;
+    let maxPopNumber = Math.max(...popArr);
+    let minPopNumber = Math.min(...popArr);
+    this.maxPopulation = maxPopNumber.toLocaleString('en-US');
+    this.minPopulation = minPopNumber.toLocaleString('en-US');
+    let baki = maxPopNumber - minPopNumber;
+    this.diffPopulation = baki.toLocaleString('en-US');
     this.selectedCountryObjects.forEach(country => {
-      if(country.population == this.maxPopulation) {
+      if (country.population == maxPopNumber) {
         this.maxPopulationCountry = country.name;
-      } else if (country.population == this.minPopulation) {
+      } else if (country.population == minPopNumber) {
         this.minPopulationCountry = country.name;
       }
     })
+  }
+  onLogout() {
+    this.authService.logout();
   }
 }
 

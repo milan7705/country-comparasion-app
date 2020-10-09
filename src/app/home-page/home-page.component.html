@@ -1,70 +1,81 @@
 <mat-toolbar color="primary" fxLayoutAlign="flex-end center">
   <span class="example-spacer"></span>
-  <div><p>Logout</p></div>
+  <div><p class="m-0 cursor-custom" (click)="onLogout()">Logout</p></div>
 </mat-toolbar>
-
-
-
-<div fxLayout="row" class="mt-30">
-  <div fxLayout="column" fxFlex="50">
-    <p>Most populated country is: {{maxPopulationCountry}} with {{maxPopulation}} inhabitants</p>
-    <p>Least populated country is: {{minPopulationCountry}} with {{minPopulation}} inhabitants</p>
-    <p>Difference of population is:  {{diffPopulation}} inhabitants</p>
-    
-  </div>
-  <div fxLayout="column" fxFlex="40" class="custom-border">
-      <mat-form-field class="example-chip-list">
-        <mat-chip-list #chipList aria-label="Fruit selection">
-          <mat-chip
-            *ngFor="let country of selectedCountries"
-            [selectable]="selectable"
-            [removable]="removable"
-            (removed)="remove(country)"
+<div fxLayout="column" class="custom-container">
+  <div fxLayout="row">
+    <div fxLayout="column" fxFlex="50" fxLayoutAlign="center flex-end">
+      <p class="w-50">
+        Most populated country is: <b>{{ maxPopulationCountry }}</b> with
+        <b>{{ maxPopulation }}</b> inhabitants
+      </p>
+      <p class="w-50">
+        Least populated country is: <b>{{ minPopulationCountry }}</b> with
+        <b>{{ minPopulation }}</b> inhabitants
+      </p>
+      <p class="w-50">
+        Difference of population is: <b>{{ diffPopulation }}</b> inhabitants
+      </p>
+    </div>
+    <div fxLayout="row" fxFlex="50">
+      <div class="custom-border" fxFlex="50">
+        <mat-form-field class="example-chip-list">
+          <mat-chip-list #chipList aria-label="Country selection">
+            <mat-chip
+              *ngFor="let country of selectedCountries"
+              [selectable]="selectable"
+              [removable]="removable"
+              (removed)="remove(country)"
+            >
+              {{ country }}
+              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+            <input
+              placeholder="New Country..."
+              #countryInput
+              matInput
+              [formControl]="myControl"
+              [matAutocomplete]="auto"
+              [matChipInputFor]="chipList"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+              (matChipInputTokenEnd)="add($event)"
+            />
+          </mat-chip-list>
+          <mat-autocomplete
+            #auto="matAutocomplete"
+            (optionSelected)="selected($event)"
           >
-            {{ country }}
-            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-          </mat-chip>
-          <input
-            placeholder="New Country..."
-            #countryInput
-            matInput
-            [formControl]="myControl"
-            [matAutocomplete]="auto"
-            [matChipInputFor]="chipList"
-            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-            (matChipInputTokenEnd)="add($event)"
-          />
-        </mat-chip-list>
-        <mat-autocomplete
-          #auto="matAutocomplete"
-          (optionSelected)="selected($event)"
-        >
-          <mat-option
-            *ngFor="let country of filteredOptions | async"
-            [value]="country"
+            <mat-option
+              *ngFor="let country of filteredOptions | async"
+              [value]="country"
+            >
+              {{ country }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <div fxLayout="row" fxLayoutAlign="center center">
+          <button
+            fxFlex="25"
+            mat-raised-button
+            color="accent"
+            (click)="maxCompare()"
           >
-            {{ country }}
-          </mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
-      <div fxLayout="row" fxLayoutAlign="center center">
-        <button fxFlex="25" mat-raised-button color="accent" (click)="maxCompare()">Compare</button>
+            Compare
+          </button>
+        </div>
       </div>
+    </div>
   </div>
-</div>
-
-<div fxLayout="row" fxLayoutAlign="center center">
-
-
-
-  <canvas
-    fxFlex="40"
-    baseChart
-    [datasets]="barChartData"
-    [labels]="mbarChartLabels"
-    [options]="barChartOptions"
-    [colors]="barChartColors"
-    [legend]="barChartLegend"
-    [chartType]="barChartType"
-  ></canvas>
+  <div fxLayout="row" class="mt-50" fxLayoutAlign="center center">
+    <canvas
+      fxFlex="50"
+      baseChart
+      [datasets]="barChartData"
+      [labels]="mbarChartLabels"
+      [options]="barChartOptions"
+      [colors]="barChartColors"
+      [legend]="barChartLegend"
+      [chartType]="barChartType"
+    ></canvas>
+  </div>
 </div>
