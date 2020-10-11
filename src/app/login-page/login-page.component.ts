@@ -6,6 +6,7 @@ import { NULL_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Observable } from 'rxjs';
 import { formatCurrency } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { compileInjectable } from '@angular/compiler';
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
@@ -33,13 +34,13 @@ export class LoginPageComponent implements OnInit {
         authObs = this.authService.login(username, password)
       } else {
       }
-      authObs.subscribe(responseData => {
+      authObs.subscribe(() => {
         this.isLoading = false;
         this.router.navigate(['./home'])
-      }, errorMessage => {
-           this._snackBar.open(errorMessage), {
-      duration: 2000,
-    }
+      }, errorMessagew => {
+          this._snackBar.open(errorMessagew, "OK", {
+            duration: 2000,
+          })
         this.isLoading = false;
       })
       form.reset();

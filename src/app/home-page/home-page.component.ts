@@ -4,6 +4,7 @@ import { FormControl } from '@angular/forms';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { MatAutocompleteSelectedEvent, MatAutocomplete } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 
 import { map, startWith } from 'rxjs/operators';
@@ -99,7 +100,7 @@ export class HomePageComponent implements OnInit {
   @ViewChild('auto') matAutocomplete: MatAutocomplete;
   @Input('aria-orientation') ariaOrientation: 'vertical';
 
-  constructor(private _compare: CountryService, private authService: AuthService, private router: Router) {
+  constructor(private _compare: CountryService, private authService: AuthService, private router: Router, private _snackbar: MatSnackBar) {
 
   }
 
@@ -160,7 +161,9 @@ export class HomePageComponent implements OnInit {
     this.selectedCountryObjects = [];
     this.barChartData = [];
     if (this.selectedCountries.length > 4 || this.selectedCountries.length < 2) {
-      alert('The number of selected countries must be between two and four');
+      this._snackbar.open("The number of selected countries must be between two and four", "OK", {
+        duration: 2000
+      });
       return;
     }
     this.selectedCountries.forEach(name => {
