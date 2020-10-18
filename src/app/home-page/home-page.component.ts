@@ -204,5 +204,3 @@ export class HomePageComponent implements OnInit {
     this.authService.logout();
   }
 }
-
-//givenNumber.toLocaleString('en-US')
